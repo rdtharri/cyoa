@@ -14,7 +14,7 @@ func main() {
 	port := flag.Int("port", 3000, "Port to start server on.")
 	filename := flag.String("story", "gopher.json", "JSON File that contains a story")
 	flag.Parse()
-	fmt.Printf("Using the story: %s", *filename)
+	fmt.Printf("Using the story: %s\n", *filename)
 
 	file, err := os.Open(*filename)
 	if err != nil {
