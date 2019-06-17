@@ -4,8 +4,14 @@ import (
 	"encoding/json"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"strings"
+)
+
+const (
+	MapKeyError          = "Something went wrong..."
+	ChapterNotFoundError = "Chapter not found."
 )
 
 func init() {
@@ -19,7 +25,7 @@ var DefaultHandlerTmpl = `
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Choose Your Own Adventure</title>
+    <title>Choose Your Own Adventure!</title>
   </head>
   <body>
     <h1>{{.Title}}</h1>
@@ -48,16 +54,17 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if path == "" || path == "/" {
 		path = "/intro"
 	}
-
 	path = path[1:]
 
 	if chapter, ok := h.s[path]; ok {
 		err := tpl.Execute(w, chapter)
 		if err != nil {
-			panic(err)
+			log.Printf("%v", err)
+			http.Error(w, MapKeyError, http.StatusInternalServerError)
 		}
+		return
 	}
-
+	http.Error(w, ChapterNotFoundError, http.StatusNotFound)
 }
 
 func JsonStory(file io.Reader) (Story, error) {
